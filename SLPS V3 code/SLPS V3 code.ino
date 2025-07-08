@@ -1,8 +1,9 @@
 /*
 [DESCRIPTION]
-Project: Lightning Protection System for Solar PV (Version 2.0)
+Project: Lightning Protection System for Solar PV (Version 3.0)
 Author: Hansini Prisha (hansiniprisha17@gmail.com)
-Last Edited: 26/3/2025
+        Zi Xian Ooi (ooizixian1@gmail.com)
+Last Edited: 8/7/2025
 
 [CODE SECTIONS]
 1) Main Program Setup & Loop
@@ -44,7 +45,7 @@ Chat ID: -1002675873467                                          Chat ID: -10023
                                                                                             
 
 [TAKE NOTE]
-*Baud rate: 9600
+*Baud rate: 19200
 *Always include any new functions at the START of the code
 _______________________________________________________________________________________________________________________________________________________________________________________________________________*/
 
