@@ -2,16 +2,15 @@
 [DESCRIPTION]
 Project: Lightning Protection System for Solar PV (Version 3.0)
 Author: Hansini Prisha (hansiniprisha17@gmail.com)
-        Zi Xian Ooi (ooizixian1@gmail.com)
-Last Edited: 8/7/2025
+        Zi Xian Ooi    (ooizixian1@gmail.com)
+Last Edited: 11/7/2025
 
 [CODE SECTIONS]
 1) Main Program Setup & Loop
 2) System Initialisation
 3) Menu Handling & User Interaction
- A) Sub-Menus #1: Latest Data
- B) Sub-Menus #2: Rod Control
- C) Sub-Menus #3: History Log
+ A) Sub-Menus #1: Rod Control
+ B) Sub-Menus #2: History Log
 4) Servo Motor & Rod Control
 5) GSM Communications
  A) Telegram Notifications [currently replaced by MQTT]
@@ -30,16 +29,16 @@ Bot Token: 7706900614:AAEyPeoKbl4I6YT51eMVb5w1iCyGYDz9_ko         Bot Token: 720
 Chat ID: -1002675873467                                          Chat ID: -1002370764984
 
 [MQTT]
-1.Client ID:          spv2.5SLPS (used for testing)               2. Client ID:             mqtt-explorer-e719ed145  (used in the main code)
+1.Client ID:          spv3SLPS (used for testing)                 2. Client ID:             mqtt-explorer-e719ed145  (used in the main code)
   MQTT broker:        test.mosquitto.org                             MQTT broker:           52.230.56.125
   Port used:          1883 or 8883                                   Port used:             1883
-  Published topic:    SLPS                                           Subscribed Topic:      SLPS/SPControl
+  Published topic:    SLPS                                           Subscribed Topic:      139651/01/Ctl
 
-  Subscribed topic:   SLPS                                           Published Topic:       1)SLPS/SPRod           -----> Show Rod Position  [UP/DOWN]
-                                                                                            2)SLPS/SPLightning     -----> Show Lightning msg                                                                                         
-                                                                                            3)SLPS/SPTemp          -----> Send Temp msg
-                                                                                            4)SLPS/SPBatt          -----> Send Batt msg                                                                                          
-                                                                                            5)SLPS/T20SP           -----> Show Message During Startup 
+  Subscribed topic:   SLPS                                           Published Topic:       1)139651/01/Rod        -----> Show Rod Position  [UP/DOWN]
+                                                                                            2)139651/01/LC         -----> Show Lightning msg                                                                                         
+                                                                                            3)139651/01/Val        -----> Send IRR, Temp & Batt values
+                                                                                            4)139651/01/Reason     -----> Show reason for rod movement                                                                                          
+                                                                                            5)139651/01/Hi         -----> Show Message During Startup 
                                                                                            
 
                                                                                             
