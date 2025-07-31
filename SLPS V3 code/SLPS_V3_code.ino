@@ -72,7 +72,6 @@ ________________________________________________________________________________
 #include <Wire.h>                //RTC,EEPROM
 #include "I2C.h"                 //AS3935 (DONWLOAD REQUIRED)
 #include "PWFusion_AS3935_I2C.h" //AS3935 (DONWLOAD REQUIRED)
-//#include <avr/wdt.h>             //Watchdog Timer library
 #include <avr/interrupt.h>       //Interrupt library
 
 
@@ -99,10 +98,12 @@ const char* PublishReason = "test/Reason";
 const char* PublishLightning = "test/LC";
 const char* PublishVal = "test/Val";*/
 
+//MQTT + Lightning
 bool sendATCommand(String cmd, unsigned long timeout, String expectedResponse = "");
 void checkForIncomingMessages();    
 bool inLightningMode = false;
 bool LightningSensor = false;
+
 //Keypad & Menu System:
 const int keypadPin = A0;                                                 //Keypad: Analog Pin 0 (6 buttons)
 const int BACK_MIN = 0, BACK_MAX = 20;                                    //Keypad: Threshold values for each button (PCB V2)
@@ -241,7 +242,7 @@ void loop();
 ___________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________*/
 void setup() {
   Serial.begin(19200);                                                             //Serial Monitor: Initialize serial communication at 115200 baud for debugging
-  sim7600eSerial.begin(115200);                                                     //GSM: Initialize serial communication with GSM module
+  sim7600eSerial.begin(19200);                                                     //GSM: Initialize serial communication with GSM module
   
   //To change the baud rate of sim7600e [Run once when startup]
   /*Serial.println(F("Setting SIM7600E baud rate to 19200..."));
@@ -1076,7 +1077,7 @@ void mqttSetup() {
   delay(2000);
 
   // Set the MQTT client ID (must be unique per client)
-  sim7600eSerial.println(F("AT+CMQTTACCQ=0,\"mqtt-explorer-1349080\""));
+  sim7600eSerial.println(F("AT+CMQTTACCQ=0,\"mqtt-explorer-2353929\""));
   delay(2000);
 
   // Connect to the MQTT broker with authentication
@@ -1121,7 +1122,7 @@ void sendMessageToMqtt(const char* Publish, const char* text) {
     char commandBuffer[30];  // Adjust size as needed
 
     // Set up MQTT client ID
-    sim7600eSerial.println(F("AT+CMQTTACCQ=0,\"mqtt-explorer-2139583\""));
+    sim7600eSerial.println(F("AT+CMQTTACCQ=0,\"mqtt-explorer-13903509\""));
     delay(500);
 
     // Connect to MQTT broker with credentials
@@ -1644,6 +1645,7 @@ void checkLightningSensor() {
       lightningDetected = true;
 
     sendMessageToMqtt(PublishReason ,"[LTG] Rod: UP"); 
+    LightningSensor = true;
     inLightningMode = true;
     moveServoUpAndDown();
     lcd.clear();
@@ -1742,9 +1744,8 @@ void moveServoUpAndDown() {
   while (true) {
     unsigned long currentMillis = millis();
     unsigned long elapsed = currentMillis - servoTimer;
-    LightningSensor = false;
-    inLightningMode = false;
     rawValue = analogRead(solarCellPin);
+
     //READ VALUE FROM SOLAR CELL SENSOR
     float VResistor = rawValue * (maxVoltage/1023.0);
     float irradiance = VResistor/shuntResistor;
@@ -1780,6 +1781,7 @@ void moveServoUpAndDown() {
         //sendMessageToTelegram("[Lightning] Rod retracted");
         sendMessageToMqtt(PublishReason ,"[LTG] Rod: DOWN");
       }
+      lightningDetected = false;
       break;
     }
 
@@ -1795,8 +1797,10 @@ void moveServoUpAndDown() {
     AS3935_ISR_Trig = 0;
 
     uint8_t int_src = lightning0.AS3935_GetInterruptSrc();
+
     if (int_src == 1 && LightningSensor == false) {
       LightningSensor = true;
+      lightningDetected = true;
       latest_distance = lightning0.AS3935_GetLightningDistKm();
       Serial.print(F("Lightning detected! Distance: "));
       Serial.println(latest_distance);
@@ -1804,6 +1808,7 @@ void moveServoUpAndDown() {
       Serial.println(F("Record stored!"));
       sendLightningSummaryMessage(currentRecord, latest_distance);
       servoTimer = millis();
+      lastLightningSent = millis();
       }
     }
 
@@ -1831,7 +1836,7 @@ void moveServoUpAndDown() {
     countTimer = 0;
     }
     //To reset the lightning sensor after 5 seconds
-    if(currentMillis - lastLightningSent >= 5000) {
+    if(currentMillis - lastLightningSent >= 5000 && LightningSensor == true) {
       LightningSensor = false;
       lastLightningSent = currentMillis; 
     }
